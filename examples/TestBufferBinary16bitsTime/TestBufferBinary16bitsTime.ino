@@ -2,7 +2,7 @@
 
 #define SIZE 3
 uint16_t DATA[SIZE]={200, 128,150};
-
+unsigned long previousTime;
 
 StreamBuffer Channel;
 
