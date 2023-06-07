@@ -1,5 +1,5 @@
-#ifndef _STREAMCHANNEL_H_
-#define _STREAMCHANNEL_H_
+#ifndef _STREAMCHANNEL_HPP_
+#define _STREAMCHANNEL_HPP_
 
 #include <Arduino.h>
 #include <stdlib.h>
@@ -13,9 +13,8 @@ private:
         uint8_t *_msbBuffer;
         uint8_t _definedSize;
         uint8_t _currentIndex;
-
-private:
-        boolean isFull();
+        
+        bool isFull();
 
 public:
       //Declaring API to be implemented and used afterword
@@ -33,6 +32,6 @@ public:
 
 };
 
-extern StreamBuffer StreamChannel;
+//extern StreamBuffer StreamChannel;
 
 #endif /*STREAMCHANNEL_H*/

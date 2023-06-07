@@ -1,4 +1,4 @@
-#include "src/StreamChannel.h"
+#include <StreamChannel.hpp>
 
 #define SIZE 3
 uint16_t DATA[SIZE]={200, 128,150};
@@ -18,7 +18,7 @@ Channel.appendChannelArray(DATA,SIZE);
 
 
 
-//Channel.transmitBufferAscii(Serial, "\t");
+Channel.transmitBufferAscii(Serial, "\t");
 //Channel.transmitBufferBinaryRaw8(Serial);
 //Channel.transmitBufferBinaryRaw16(Serial);
 //Channel.sendBufferAsciiTimeStamp(Serial, 12,"\t");

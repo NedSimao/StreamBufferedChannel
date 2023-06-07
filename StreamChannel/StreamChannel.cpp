@@ -1,10 +1,12 @@
-#include "StreamChannel.h"
+#include "StreamChannel.hpp"
 
 
 
-boolean StreamBuffer::isFull(){
+bool StreamBuffer::isFull(){
 
-  return (_currentIndex==_definedSize);
+
+  return ((_currentIndex==_definedSize)? true:false);
+
 }
 
 
