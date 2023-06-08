@@ -17,15 +17,16 @@ class SerialPort(serial.Serial):
         """ 
         Lists the serial port names available on the system
         """
-
         # Checking the computer operational system:
         if sys.platform.startswith('win'):
             ports = ['COM%s' % (i + 1) for i in range(256)]
-        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        elif sys.platform.startswith('linux'):
             # this excludes your current terminal "/dev/tty"
             ports = glob.glob('/dev/tty[A-Za-z]*')
-        elif sys.platform.startswith('darwin'):
+        elif sys.platform.startswith('cygwin'):  # for windows/cygwin
             ports = glob.glob('/dev/tty.*')
+        elif sys.platform.startswith('darwin'):
+            ports = glob.glob('/dev/cu.*')
         else:
             raise EnvironmentError('Unsupported platform')
 
@@ -51,29 +52,40 @@ class SerialPort(serial.Serial):
         portsFound = self.listSerialPorts()
         connectionAvailable = len(portsFound)
 
-        for curr_device in range(connectionAvailable):
-            devicePort = str(portsFound[curr_device])
+        if (device_serial_name != "All"):
+            for curr_device in range(connectionAvailable):
+                devicePort = str(portsFound[curr_device])
 
-            if device_serial_name in devicePort:
+                if device_serial_name in devicePort:
+                    comPorts.append((devicePort.split(' '))[0])
+        else:
+            for curr_device in range(connectionAvailable):
+                devicePort = str(portsFound[curr_device])
+
                 comPorts.append((devicePort.split(' '))[0])
 
         return comPorts
 
-    def connectPort(self, serialPort, baudrate=9600, timeout=-1, xonxoff=False):
+    def connect(self, serialPort, baudrate=9600, timeout=10, xonxoff=False):
         if serialPort is not None:
             try:
                 self.ser = serial.Serial(
-                    serialPort, baudrate, timeout, xonxoff)
-                print("Connected to "+serialPort)
+                    port=serialPort, baudrate=baudrate, timeout=timeout, xonxoff=xonxoff)
+                print("Connected to :")
+                print(serialPort)
             except serial.SerialException as var:
                 print("Connection issued!\n Exception detail:"+var)
 
+    def disconnect(self):
+        self.ser.close()
+
     def isComStablished(self, command, readStr="ACK", encoding='ascii', errors='strict'):
         command += str('\n')
-        serialString = val = self.ser.write(command.encode(encoding, errors))
+        serialString = val = SerialPort.ser.write(
+            command.encode(encoding, errors))
 
         # inCommingData=self.ser.read_until(b'}')
-        inCommingData = self.ser.readline()
+        inCommingData = SerialPort.ser.readline()
 
         if (inCommingData == readStr):
             return True
@@ -90,12 +102,13 @@ class ReadChannel(SerialPort):
 
     # Declaring and implementing all the available functions for the channelBuffer
 
-    def Ascii(self, sepCar="\t", decode='ascii'):
+    def Ascii(self, sepCar='\t', decode='ascii'):
         readData = self.ser.readline().decode(decode).split(sepCar)
+        readData.remove("\r\n")
 
         return readData
 
-    def AsciiTimeStamp(self, sepCar="\t"):
+    def AsciiTimeStamp(self, sepCar='\t'):
 
         readData = self.Ascii(sepCar)
 
@@ -119,4 +132,26 @@ class ReadChannel(SerialPort):
 
 
 if __name__ == '__main__':
-    pass
+
+    # uart = SerialPort()
+    uart = ReadChannel(4)
+    ports = uart.listSerialPorts()
+
+    devices = uart.findDevices("usbmodem")
+    # devices = uart.findDevices("Arduino")
+    # print("Devices available : ", devices)
+    # print("Comports available : ", ports)
+    dat = devices[0]
+    print("dat : "+str(type(dat)))
+
+    uart.connect(dat)
+
+    uart.connect(devices[0])
+
+    for i in range(10):
+        # dataRead = uart.Ascii()
+        dataRead = uart.AsciiTimeStamp()
+
+        print(dataRead)
+
+    uart.disconnect()
