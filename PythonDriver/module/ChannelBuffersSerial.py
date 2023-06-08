@@ -7,20 +7,18 @@ from multipledispatch import dispatch
 
 
 class SerialPort(serial.Serial):
+
+    global ser  # global variable to store the serial object
+
     def __init__(self):
         super(SerialPort, self).__init__()
-        pass
 
-    def getPorts(self):
+    def listSerialPorts(self):
         """ 
-        Lists serial port names
-        A list of the serial ports available on the system
+        Lists the serial port names available on the system
         """
-        # Definning variables:
-        result = []
 
         # Checking the computer operational system:
-
         if sys.platform.startswith('win'):
             ports = ['COM%s' % (i + 1) for i in range(256)]
         elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
@@ -31,43 +29,80 @@ class SerialPort(serial.Serial):
         else:
             raise EnvironmentError('Unsupported platform')
 
+        # Definning variables:
+        portsFound = []
         for port in ports:
             try:
                 s = serial.Serial(port)
                 s.close()
-                result.append(port)
+                portsFound.append(port)
             except (OSError, serial.SerialException):
                 pass
 
-        return result
+        return portsFound
+
+    def findDevices(self, device_serial_name="Arduino"):
+        """
+        Look through all the available serial connections, the serial objects with "device_serial_name" 
+        inside
+        """
+        comPorts = []
+
+        portsFound = self.listSerialPorts()
+        connectionAvailable = len(portsFound)
+
+        for curr_device in range(connectionAvailable):
+            devicePort = str(portsFound[curr_device])
+
+            if device_serial_name in devicePort:
+                comPorts.append((devicePort.split(' '))[0])
+
+        return comPorts
+
+    def connectPort(self, serialPort, baudrate=9600, timeout=-1, xonxoff=False):
+        if serialPort is not None:
+            try:
+                self.ser = serial.Serial(
+                    serialPort, baudrate, timeout, xonxoff)
+                print("Connected to "+serialPort)
+            except serial.SerialException as var:
+                print("Connection issued!\n Exception detail:"+var)
+
+    def isComStablished(self, command, readStr="ACK", encoding='ascii', errors='strict'):
+        command += str('\n')
+        serialString = val = self.ser.write(command.encode(encoding, errors))
+
+        # inCommingData=self.ser.read_until(b'}')
+        inCommingData = self.ser.readline()
+
+        if (inCommingData == readStr):
+            return True
+
+        else:
+            return False
 
 
-class Uart(serial.Serial):
-    def __init__(self):
-        super(Uart, self).__init__(self)
-        pass
+class ReadChannel(SerialPort):
 
-    def config(self):
-        pass
+    def __init__(self, channelNumber):
+        super(SerialPort, self).__init__()
+        self.channelNo = channelNumber
 
-    def write(self):
-        pass
+    # Declaring and implementing all the available functions for the channelBuffer
 
-    def print(self):
-        pass
+    """
+    The main functions I want this code to perform are:
+    Ascii(sepCar);
+    AsciiTimeStamp(sepCar);
+    RawData16();
+    RawData8();
+    RawDataTimeStamp16();
+    RawDataTimeStamp8();
 
-    def println(self):
-        pass
+    """
+
+    pass
 
 
 if __name__ == '__main__':
-    """
-    Where test are going to be done
-    """
-
-    uart = SerialPort()
-    ports = uart.getPorts()
-
-    print(ports)
-    print(ports[0])
     pass
