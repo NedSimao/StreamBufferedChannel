@@ -90,18 +90,28 @@ class ReadChannel(SerialPort):
 
     # Declaring and implementing all the available functions for the channelBuffer
 
-    """
-    The main functions I want this code to perform are:
-    Ascii(sepCar);
-    AsciiTimeStamp(sepCar);
-    RawData16();
-    RawData8();
-    RawDataTimeStamp16();
-    RawDataTimeStamp8();
+    def Ascii(self, sepCar="\t", decode='ascii'):
+        read = self.ser.readline().decode(decode)
 
-    """
+    def AsciiTimeStamp(self, sepCar="\t"):
 
-    pass
+        pass
+
+    def RawData16(self):
+
+        pass
+
+    def RawData8(self):
+
+        pass
+
+    def RawDataTimeStamp16(self):
+
+        pass
+
+    def RawDataTimeStamp8(self):
+
+        pass
 
 
 if __name__ == '__main__':
