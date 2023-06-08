@@ -91,11 +91,15 @@ class ReadChannel(SerialPort):
     # Declaring and implementing all the available functions for the channelBuffer
 
     def Ascii(self, sepCar="\t", decode='ascii'):
-        read = self.ser.readline().decode(decode)
+        readData = self.ser.readline().decode(decode).split(sepCar)
+
+        return readData
 
     def AsciiTimeStamp(self, sepCar="\t"):
 
-        pass
+        readData = self.Ascii(sepCar)
+
+        return readData
 
     def RawData16(self):
 
